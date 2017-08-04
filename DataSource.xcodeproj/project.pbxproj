@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CE05B95D1F34A55F00BCB37A /* MovePair.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE05B95C1F34A55F00BCB37A /* MovePair.swift */; };
+		CE05B95E1F34A56200BCB37A /* MovePair.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE05B95C1F34A55F00BCB37A /* MovePair.swift */; };
 		CE11AA7E1F2F4B6300F0B9FA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE11AA7D1F2F4B6300F0B9FA /* AppDelegate.swift */; };
 		CE11AA801F2F4B6300F0B9FA /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE11AA7F1F2F4B6300F0B9FA /* ViewController.swift */; };
 		CE11AA831F2F4B6300F0B9FA /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CE11AA811F2F4B6300F0B9FA /* Main.storyboard */; };
@@ -50,6 +52,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		CE05B95C1F34A55F00BCB37A /* MovePair.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MovePair.swift; sourceTree = "<group>"; };
 		CE11AA7A1F2F4B6300F0B9FA /* DataSourceApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DataSourceApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE11AA7D1F2F4B6300F0B9FA /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		CE11AA7F1F2F4B6300F0B9FA /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -124,6 +127,7 @@
 				CE16B3901F309B21003361C4 /* UpdateOperation.swift */,
 				CE910ABE1F30B34B001641E6 /* AnimatableCollection.swift */,
 				CE910AC01F30B39A001641E6 /* UICollectionView+AnimatableCollection.swift */,
+				CE05B95C1F34A55F00BCB37A /* MovePair.swift */,
 			);
 			path = DataSource;
 			sourceTree = "<group>";
@@ -254,6 +258,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CE05B95E1F34A56200BCB37A /* MovePair.swift in Sources */,
 				CE11AA911F2F4B8900F0B9FA /* DataSource.swift in Sources */,
 				CE16B3911F309B21003361C4 /* UpdateOperation.swift in Sources */,
 				CE910AC11F30B39A001641E6 /* UICollectionView+AnimatableCollection.swift in Sources */,
@@ -270,6 +275,7 @@
 				CEF63AEE1F349F8000ACD454 /* DataSource.swift in Sources */,
 				CEF63AF21F349F8000ACD454 /* UICollectionView+AnimatableCollection.swift in Sources */,
 				CEF63AF01F349F8000ACD454 /* UpdateOperation.swift in Sources */,
+				CE05B95D1F34A55F00BCB37A /* MovePair.swift in Sources */,
 				CEF63AF11F349F8000ACD454 /* AnimatableCollection.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

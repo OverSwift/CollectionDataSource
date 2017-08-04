@@ -24,19 +24,6 @@ struct DataObject<T:DataType>: Box {
     var itemIndex:Int
 }
 
-class MovePair<T:DataType> {
-    
-    var object: DataObject<T>
-    var from: IndexPath
-    var to: IndexPath
-    
-    init(object: DataObject<T>, from: IndexPath) {
-        self.object = object
-        self.from = from
-        self.to = from
-    }
-}
-
 public class DataSource<T:DataType> {
 
     private var updateQueue: OperationQueue = {
