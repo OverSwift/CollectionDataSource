@@ -10,19 +10,19 @@ import UIKit
 
 extension UICollectionView: AnimatableCollection {
     
-    func insertItem(at path: IndexPath) {
+    public func insertItem(at path: IndexPath) {
         insertItems(at: [path])
     }
     
-    func removeItem(at path: IndexPath) {
+    public func removeItem(at path: IndexPath) {
         deleteItems(at: [path])
     }
     
-    func moveItem(from path: IndexPath, to newPath: IndexPath) {
+    public func moveItem(from path: IndexPath, to newPath: IndexPath) {
         moveItem(at: path, to: newPath)
     }
     
-    func update(with animations: @escaping () -> (), completion: @escaping (Bool) -> ()) {
+    public func update(with animations: @escaping () -> (), completion: @escaping (Bool) -> ()) {
         self.performBatchUpdates(animations, completion: completion)
     }
 }

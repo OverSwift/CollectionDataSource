@@ -8,7 +8,7 @@
 
 import UIKit
 
-typealias DataType = (Hashable)
+public typealias DataType = (Hashable)
 
 protocol Box {
     
@@ -37,7 +37,7 @@ class MovePair<T:DataType> {
     }
 }
 
-class DataSource<T:DataType> {
+public class DataSource<T:DataType> {
 
     private var updateQueue: OperationQueue = {
         let queue = OperationQueue()
@@ -48,23 +48,27 @@ class DataSource<T:DataType> {
     
     private var objects:[DataObject<T>] = []
     
-    var items:[T] {
+    public var items:[T] {
         return objects.map({ (obj) -> T in
             return obj.value
         })
     }
     
-    private(set) weak var view:AnimatableCollection?
+    public var numberOfItems: Int {
+        return objects.count
+    }
     
-    typealias SortType = (T,T) -> Bool
+    open private(set) weak var view:AnimatableCollection?
     
-    var sort:SortType?{
+    public typealias SortType = (T,T) -> Bool
+    
+    public var sort:SortType?{
         didSet {
             updateSort()
         }
     }
     
-    init(withView view:AnimatableCollection) {
+    public init(withView view:AnimatableCollection) {
         self.view = view
     }
     
@@ -116,15 +120,15 @@ class DataSource<T:DataType> {
         updateQueue.addOperation(operation)
     }
     
-    func set(sort:SortType?) {
+    public func set(sort:SortType?) {
         self.sort = sort
     }
     
-    func add(object: T) {
+    public func add(object: T) {
         add(objects: [object])
     }
     
-    func add(objects: [T]) {
+    public func add(objects: [T]) {
         
         if objects.isEmpty { return }
 
@@ -182,11 +186,11 @@ class DataSource<T:DataType> {
         updateQueue.addOperation(operation)
     }
     
-    func remove(object: T) {
+    public func remove(object: T) {
         remove(objects: [object])
     }
     
-    func remove(objects: [T]) {
+    public func remove(objects: [T]) {
 
         if objects.isEmpty { return }
         
@@ -241,11 +245,7 @@ class DataSource<T:DataType> {
         return old != nil
     }
     
-    func swap(one:T, two:T) {
-        
-    }
-    
-    func move(from :Int, to: Int, byUser:Bool) {
+    public func move(from :Int, to: Int, byUser:Bool) {
         
         let operation = UpdateOperation()
         
@@ -268,7 +268,7 @@ class DataSource<T:DataType> {
         updateQueue.addOperation(operation)
     }
     
-    func stop() {
+    public func stop() {
         updateQueue.cancelAllOperations()
     }
 }

@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol AnimatableCollection: class {
+public protocol AnimatableCollection: class {
     
     func update(with animations: @escaping () -> (), completion: @escaping (Bool) -> ())
     func insertItem(at path: IndexPath)
