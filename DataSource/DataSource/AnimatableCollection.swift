@@ -11,6 +11,10 @@ import Foundation
 public protocol AnimatableCollection: class {
     
     func update(with animations: @escaping () -> (), completion: @escaping (Bool) -> ())
+    
+    func insertSection(at index:Int)
+    func removeSection(at index:Int)
+    
     func insertItem(at path: IndexPath)
     func removeItem(at path: IndexPath)
     func moveItem(from path: IndexPath, to newPath: IndexPath)

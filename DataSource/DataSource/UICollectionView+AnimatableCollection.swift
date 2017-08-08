@@ -10,6 +10,16 @@ import UIKit
 
 extension UICollectionView: AnimatableCollection {
     
+    public func insertSection(at index: Int) {
+        let set = IndexSet(integer: index)
+        insertSections(set)
+    }
+
+    public func removeSection(at index: Int) {
+        let set = IndexSet(integer: index)
+        deleteSections(set)
+    }
+    
     public func insertItem(at path: IndexPath) {
         insertItems(at: [path])
     }
