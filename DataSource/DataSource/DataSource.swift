@@ -8,7 +8,13 @@
 
 import UIKit
 
-public typealias DataType = (Hashable)
+public protocol SectionSupport {
+    
+    associatedtype SectionKeyValue: Comparable
+    var value:SectionKeyValue { get }
+}
+
+public typealias DataType = (Hashable & SectionSupport)
 
 protocol Box {
     
@@ -20,8 +26,18 @@ struct DataObject<T:DataType>: Box {
     
     typealias ObjectType = T
     var value: T
-    var sectionIndex:Int
-    var itemIndex:Int
+}
+
+class Section<T:DataType> {
+    
+    var isNew = true
+    var isDitry = true
+    var sectionKey: T.SectionKeyValue
+    fileprivate var objects:[DataObject<T>] = []
+    
+    init(key: T.SectionKeyValue) {
+        self.sectionKey = key
+    }
 }
 
 public class DataSource<T:DataType> {
@@ -33,16 +49,46 @@ public class DataSource<T:DataType> {
         return queue
     }()
     
-    private var objects:[DataObject<T>] = []
+//    private var objects:[DataObject<T>] = []
     
+    private var sections:[Section<T>] = []
+
     public var items:[T] {
-        return objects.map({ (obj) -> T in
-            return obj.value
-        })
+        return sections.reduce([T]()) { (current, section) -> [T] in
+            return section.objects.map({ (dataObj) -> T in
+                return dataObj.value
+            })
+        }
     }
     
-    public var numberOfItems: Int {
-        return objects.count
+    public func numberOfItems(in section:Int) -> Int {
+        return sections[section].objects.count
+    }
+    
+    func section(for object:T) -> Section<T> {
+        
+        var objectSection: Section<T>? = nil
+        
+        for section in self.sections {
+            if object.value == section.sectionKey {
+                objectSection = section
+            }
+        }
+        
+        guard let section = objectSection else {
+            let newSection = Section<T>(key: object.value)
+            sections.append(newSection)
+            sections.sort(by: { (lhs, rhs) -> Bool in
+                return lhs.sectionKey > rhs.sectionKey
+            })
+            print("Print \(sections)")
+            return newSection
+        }
+        return section
+    }
+    
+    public var numberOfSections: Int {
+        return sections.count
     }
     
     open private(set) weak var view:AnimatableCollection?
@@ -61,50 +107,49 @@ public class DataSource<T:DataType> {
     
     func updateSort() {
 
-        let operation = UpdateOperation()
-        
-        var pairs = Array<MovePair<T>>()
-
-        operation.arrayModify = {
-            
-            let old = Array(self.objects)
-            
-            for (i, obj) in old.enumerated() {
-                let path = IndexPath(item: i, section: 0)
-                let pair = MovePair(object: obj, from: path)
-                pairs.append(pair)
-            }
-            
-            self.objects.sort(by: { (lhs, rhs) -> Bool in
-                return self.sort?(lhs.value, rhs.value) ?? false
-            })
-            
-            for pair in pairs {
-                let index = self.objects.index(where: { (obj) -> Bool in
-                    return obj.value == pair.object.value
-                })
-                guard let i = index else {
-                    continue
-                }
-                let path = IndexPath(item: i, section: 0)
-                pair.to = path
-            }
-            
-            return true
-        }
-        
-        operation.applyChanges = {
-            
-            self.view?.update(with: { 
-                for pair in pairs {
-                    self.view?.moveItem(from: pair.from, to: pair.to)
-                }
-            }, completion: { (_) in
-                operation.end()
-            })
-        }
-        
-        updateQueue.addOperation(operation)
+//        let operation = UpdateOperation()
+//        var pairs = Array<MovePair<T>>()
+//
+//        operation.arrayModify = {
+//            
+//            let old = Array(self.objects)
+//            
+//            for (i, obj) in old.enumerated() {
+//                let path = IndexPath(item: i, section: 0)
+//                let pair = MovePair(object: obj, from: path)
+//                pairs.append(pair)
+//            }
+//            
+//            self.objects.sort(by: { (lhs, rhs) -> Bool in
+//                return self.sort?(lhs.value, rhs.value) ?? false
+//            })
+//            
+//            for pair in pairs {
+//                let index = self.objects.index(where: { (obj) -> Bool in
+//                    return obj.value == pair.object.value
+//                })
+//                guard let i = index else {
+//                    continue
+//                }
+//                let path = IndexPath(item: i, section: 0)
+//                pair.to = path
+//            }
+//            
+//            return true
+//        }
+//        
+//        operation.applyChanges = {
+//            
+//            self.view?.update(with: { 
+//                for pair in pairs {
+//                    self.view?.moveItem(from: pair.from, to: pair.to)
+//                }
+//            }, completion: { (_) in
+//                operation.end()
+//            })
+//        }
+//        
+//        updateQueue.addOperation(operation)
     }
     
     public func set(sort:SortType?) {
@@ -121,7 +166,9 @@ public class DataSource<T:DataType> {
 
         let operation = UpdateOperation()
         
-        var indexes = IndexSet()
+        var newSection = IndexSet()
+        var newPaths = [IndexPath]()
+        
         operation.arrayModify = {
             
             var filteredObjects = Array<T>()
@@ -137,34 +184,55 @@ public class DataSource<T:DataType> {
             }
             
             for object in filteredObjects {
-                let wraper = DataObject(value: object, sectionIndex: 0, itemIndex: 0)
-                self.objects.append(wraper)
+                let wraper = DataObject(value: object)
+                let section = self.section(for: object)
+                section.objects.append(wraper)
+                section.isDitry = true
             }
             
-            self.objects.sort(by: { (lhs, rhs) -> Bool in
-                return self.sort?(lhs.value, rhs.value) ?? false
+            self.sections.forEach({ (section) in
+                if section.isNew || section.isDitry {
+                    section.objects.sort(by: { (lhs, rhs) -> Bool in
+                        return self.sort?(lhs.value, rhs.value) ?? false
+                    })
+                }
             })
             
-            for object in filteredObjects {
-                let index = self.objects.index { (obj) -> Bool in
-                    return obj.value == object
-                }
-                guard let a = index else {
-                    return false
-                }
-                indexes.insert(a)
-            }
             
+            for (i, section) in zip(self.sections.indices, self.sections) {
+                
+                if section.isNew {
+                    print("Add index \(i)")
+                    newSection.insert(i)
+                    section.isNew = false
+                    continue
+                }
+                
+                for object in filteredObjects {
+                    let index = section.objects.index { (obj) -> Bool in
+                        return obj.value == object
+                    }
+                    guard let a = index else {
+                        continue
+                    }
+                    let path = IndexPath(item: a, section: i)
+                    newPaths.append(path)
+                }
+            }
             return true
         }
         
         operation.applyChanges = {
-            
             self.view?.update(with: {
-                for index in indexes {
-                    let path = IndexPath(item: index, section: 0)
+                
+                for sectionIndex in newSection {
+                    self.view?.insertSection(at: sectionIndex)
+                }
+                
+                for path in newPaths {
                     self.view?.insertItem(at: path)
                 }
+                
             }, completion: { (finished) in
                 operation.end()
             })
@@ -179,80 +247,87 @@ public class DataSource<T:DataType> {
     
     public func remove(objects: [T]) {
 
-        if objects.isEmpty { return }
-        
-        let operation = UpdateOperation()
-        
-        var indexes = IndexSet()
-
-        operation.arrayModify = {
-            print("Modify remove called")
-            
-            for object in objects {
-                let index = self.objects.index { (obj) -> Bool in
-                    return obj.value == object
-                }
-                guard let a = index else {
-                    return false
-                }
-                indexes.insert(a)
-            }
-            
-            for object in objects {
-                let index = self.objects.index { (obj) -> Bool in
-                    return obj.value == object
-                }
-                guard let i = index else {
-                    return false
-                }
-                self.objects.remove(at: i)
-            }
-            
-            return true
-        }
-        
-        operation.applyChanges = {
-            self.view?.update(with: {
-                for i in indexes {
-                    let path = IndexPath(item: i, section: 0)
-                    self.view?.removeItem(at: path)
-                }
-            }, completion: { (finished) in
-                operation.end()
-            })
-        }
-        
-        updateQueue.addOperation(operation)
+//        if objects.isEmpty { return }
+//        
+//        let operation = UpdateOperation()
+//        
+//        var indexes = IndexSet()
+//
+//        operation.arrayModify = {
+//            print("Modify remove called")
+//            
+//            for object in objects {
+//                let index = self.objects.index { (obj) -> Bool in
+//                    return obj.value == object
+//                }
+//                guard let a = index else {
+//                    return false
+//                }
+//                indexes.insert(a)
+//            }
+//            
+//            for object in objects {
+//                let index = self.objects.index { (obj) -> Bool in
+//                    return obj.value == object
+//                }
+//                guard let i = index else {
+//                    return false
+//                }
+//                self.objects.remove(at: i)
+//            }
+//            
+//            return true
+//        }
+//        
+//        operation.applyChanges = {
+//            self.view?.update(with: {
+//                for i in indexes {
+//                    let path = IndexPath(item: i, section: 0)
+//                    self.view?.removeItem(at: path)
+//                }
+//            }, completion: { (finished) in
+//                operation.end()
+//            })
+//        }
+//        
+//        updateQueue.addOperation(operation)
     }
     
     func contains(object: T) -> Bool {
-        let old = objects.first { (obj) -> Bool in
-            return obj.value == object
+        var old:T?
+        for s in sections {
+            let a = s.objects.first { (obj) -> Bool in
+                return obj.value == object
+            }
+            if let aa = a {
+                old = aa.value
+                break
+            }
         }
         return old != nil
     }
     
     public func move(from :Int, to: Int, byUser:Bool) {
         
-        let operation = UpdateOperation()
+//        let operation = UpdateOperation()
+//        
+//        operation.arrayModify = {
+//            let obj = self.objects.remove(at: from)
+//            self.objects.insert(obj, at: to)
+//            return !byUser
+//        }
+//        
+//        operation.applyChanges = {
+//            self.view?.update(with: {
+//                let fromPath = IndexPath(item: from, section: 0)
+//                let toPath = IndexPath(item: to, section: 0)
+//                self.view?.moveItem(from: fromPath, to: toPath)
+//            }, completion: { (_) in
+//                operation.end()
+//            })
+//        }
         
-        operation.arrayModify = {
-            let obj = self.objects.remove(at: from)
-            self.objects.insert(obj, at: to)
-            return !byUser
-        }
-        
-        operation.applyChanges = {
-            self.view?.update(with: {
-                let fromPath = IndexPath(item: from, section: 0)
-                let toPath = IndexPath(item: to, section: 0)
-                self.view?.moveItem(from: fromPath, to: toPath)
-            }, completion: { (_) in
-                operation.end()
-            })
-        }
-        
-        updateQueue.addOperation(operation)
+//        updateQueue.addOperation(operation)
     }
     
     public func stop() {
