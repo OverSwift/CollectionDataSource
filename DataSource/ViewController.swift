@@ -13,6 +13,15 @@ class PhantomObject: NSObject {
     var name:String?
 }
 
+extension PhantomObject: SectionSupport {
+    
+    typealias SectionKeyValue = String
+
+    var value: String {
+        return name ?? ""
+    }
+}
+
 class Cell: UICollectionViewCell {
     
     @IBOutlet weak var text: UILabel!
@@ -74,7 +83,7 @@ class ViewController: UIViewController {
     }
     
     @IBAction func stopRemove(sender: UIButton) {
-        dataSource.move(from: 1, to: 3, byUser: false)
+//        dataSource.move(from: 1, to: 3, byUser: false)
     }
     
     @IBAction func az(_ sender: UIButton) {
@@ -111,11 +120,11 @@ class ViewController: UIViewController {
 extension ViewController: UICollectionViewDataSource {
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 1
+        return dataSource.numberOfSections
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return dataSource.items.count
+        return dataSource.numberOfItems(in: section)
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -141,7 +150,7 @@ extension ViewController: UICollectionViewDelegate {
     }
     
     func collectionView(_ collectionView: UICollectionView, moveItemAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-        dataSource.move(from:sourceIndexPath.row, to: destinationIndexPath.row, byUser: true)
+        dataSource.move(from:sourceIndexPath, to: destinationIndexPath, byUser: true)
     }
 }
 
