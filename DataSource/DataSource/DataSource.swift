@@ -75,13 +75,13 @@ public class DataSource<T:DataType> {
         }
     }
 
-    public var items:[T] {
-        return sections.reduce([T]()) { (current, section) -> [T] in
-            return section.objects.map({ (dataObj) -> T in
-                return dataObj.value
-            })
-        }
-    }
+//    public var items:[T] {
+//        return sections.reduce([T]()) { (current, section) -> [T] in
+//            return section.objects.map({ (dataObj) -> T in
+//                return dataObj.value
+//            })
+//        }
+//    }
     
     public var numberOfSections: Int {
         return sections.count
@@ -137,7 +137,7 @@ public class DataSource<T:DataType> {
     func updateSort() {
 
         let operation = UpdateOperation()
-        var pairs = Array<MovePair<T>>()
+        var pairs = [MovePair<T>]()
 
         operation.arrayModify = {
             
@@ -223,11 +223,11 @@ public class DataSource<T:DataType> {
             
             self.sortSections()
             
-            for (i, section) in zip(self.sections.indices, self.sections) {
+            for (sectionIndex, section) in self.sections.enumerated() {
                 
                 if section.isNew {
-                    print("Add index \(i)")
-                    newSection.insert(i)
+                    print("Add index \(sectionIndex)")
+                    newSection.insert(sectionIndex)
                     section.isNew = false
                     continue
                 }
@@ -239,7 +239,7 @@ public class DataSource<T:DataType> {
                     guard let a = index else {
                         continue
                     }
-                    let path = IndexPath(item: a, section: i)
+                    let path = IndexPath(item: a, section: sectionIndex)
                     newPaths.append(path)
                 }
             }
@@ -295,14 +295,14 @@ public class DataSource<T:DataType> {
             
             var sections = [Section<T>]()
             
-            for (i, section) in self.sections.enumerated() {
+            for (sectionindex, section) in self.sections.enumerated() {
                 
                 let newSection = Section<T>(key: section.sectionKey)
                 newSection.isNew = false
                 
-                for (j, object) in section.objects.enumerated() {
+                for (objectIndex, object) in section.objects.enumerated() {
                     if objects.contains(object.value) {
-                        let path = IndexPath(item: j, section: i)
+                        let path = IndexPath(item: objectIndex, section: sectionindex)
                         removePath.append(path)
                     } else {
                         newSection.objects.append(object)
@@ -310,7 +310,7 @@ public class DataSource<T:DataType> {
                 }
                 
                 if newSection.objects.isEmpty {
-                    removeSections.insert(i)
+                    removeSections.insert(sectionindex)
                 } else {
                     sections.append(newSection)
                 }
@@ -344,8 +344,8 @@ public class DataSource<T:DataType> {
     
     private func contains(object: T) -> Bool {
         var old:T?
-        for s in sections {
-            let a = s.objects.first { (obj) -> Bool in
+        for section in sections {
+            let a = section.objects.first { (obj) -> Bool in
                 return obj.value == object
             }
             if let aa = a {

@@ -76,10 +76,10 @@ class ViewController: UIViewController {
     }
     
     @IBAction func remove(sender: UIButton) {
-        for object in dataSource.items {
-            dataSource.remove(object: object)
-        }
-        dataSource.add(object: PhantomObject())
+//        for object in dataSource.items {
+//            dataSource.remove(object: object)
+//        }
+//        dataSource.add(object: PhantomObject())
     }
     
     @IBAction func stopRemove(sender: UIButton) {
@@ -129,7 +129,7 @@ extension ViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! Cell
-        let obj = dataSource.items[indexPath.row]
+        let obj = dataSource[indexPath]
         cell.text.text = obj.name
         print(obj.name ?? "")
         
@@ -141,7 +141,7 @@ extension ViewController: UICollectionViewDataSource {
 extension ViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let obj = dataSource.items[indexPath.row]
+        let obj = dataSource[indexPath]
         dataSource.remove(object: obj)
     }
     
