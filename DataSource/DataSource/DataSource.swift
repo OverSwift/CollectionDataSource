@@ -8,14 +8,6 @@
 
 import UIKit
 
-public typealias SectionKey = (Comparable & Hashable)
-
-public protocol SectionSupport {
-    
-    associatedtype SectionKeyValue: SectionKey
-    var value:SectionKeyValue { get }
-}
-
 public typealias DataType = (Hashable & SectionSupport)
 
 protocol Box {
@@ -29,34 +21,6 @@ struct DataObject<T:DataType>: Box {
     typealias ObjectType = T
     var value: T
 }
-
-class Section<T:DataType> {
-    
-    var isNew = true
-    var isDitry = false
-    var sectionKey: T.SectionKeyValue
-    fileprivate var objects:[DataObject<T>] = []
-    
-    init(key: T.SectionKeyValue) {
-        self.sectionKey = key
-    }
-}
-
-extension Section : Equatable {
-    
-    static func ==(lhs: Section<T>, rhs: Section<T>) -> Bool {
-        return lhs.sectionKey == rhs.sectionKey
-    }
-}
-
-
-extension Section: Hashable {
-    
-    var hashValue: Int {
-        return sectionKey.hashValue
-    }
-}
-
 
 public class DataSource<T:DataType> {
 
@@ -74,14 +38,6 @@ public class DataSource<T:DataType> {
             }
         }
     }
-
-//    public var items:[T] {
-//        return sections.reduce([T]()) { (current, section) -> [T] in
-//            return section.objects.map({ (dataObj) -> T in
-//                return dataObj.value
-//            })
-//        }
-//    }
     
     public var numberOfSections: Int {
         return sections.count
@@ -217,7 +173,7 @@ public class DataSource<T:DataType> {
             for object in filteredObjects {
                 let wraper = DataObject(value: object)
                 let section = self.section(for: object)
-                section.objects.append(wraper)
+                section.add(object: wraper)
                 section.isDitry = true
             }
             
