@@ -23,7 +23,11 @@ class UpdateOperation: Operation {
     }
     
     var arrayModify:(() -> Bool)?
-    var applyChanges:(() -> ())?
+    var applyChanges: ((_ completionHandler: @escaping () -> ()) -> ())?
+    
+//    func setChanges(block: ((_ completionHandler: @escaping () -> ()) -> ())?) {
+//        applyChanges = block
+//    }
     
     override func cancel() {
         super.cancel()
@@ -62,15 +66,18 @@ class UpdateOperation: Operation {
         }
         
         if arrayModify?() ?? false {
-            OperationQueue.main.addOperation {
-                self.applyChanges?()
+            OperationQueue.main.addOperation { [weak self] in
+                self?.applyChanges? { [weak self] in
+                    print("END")
+                    self?.end()
+                }
             }
         } else {
             end()
         }
     }
     
-    func end() {
+    private func end() {
         updating = false
     }
     

@@ -8,20 +8,6 @@
 
 import UIKit
 
-public typealias DataType = (Hashable & SectionSupport)
-
-protocol Box {
-    
-    associatedtype ObjectType:DataType
-    var value:ObjectType { get }
-}
-
-struct DataObject<T:DataType>: Box {
-    
-    typealias ObjectType = T
-    var value: T
-}
-
 public class DataSource<T:DataType> {
 
     private var updateQueue: OperationQueue = {
@@ -125,16 +111,28 @@ public class DataSource<T:DataType> {
             return true
         }
 
-        operation.applyChanges = {
-            
-            self.view?.update(with: { 
+        operation.applyChanges = { [weak self] (completion)  in
+            self?.view?.update(with: {
                 for pair in pairs {
-                    self.view?.moveItem(from: pair.from, to: pair.to)
+                    self?.view?.moveItem(from: pair.from, to: pair.to)
                 }
             }, completion: { (_) in
-                operation.end()
+                completion()
             })
         }
+        
+
+        
+//        operation.applyChanges = { [weak self] in
+//            
+//            self?.view?.update(with: {
+//                for pair in pairs {
+//                    self?.view?.moveItem(from: pair.from, to: pair.to)
+//                }
+//            }, completion: { (_) in
+//                operation.end()
+//            })
+//        }
         
         updateQueue.addOperation(operation)
     }
@@ -202,20 +200,20 @@ public class DataSource<T:DataType> {
             return true
         }
         
-        operation.applyChanges = {
-            self.view?.update(with: {
+        operation.applyChanges = { [weak self] (completion)  in
+            self?.view?.update(with: {
                 
                 for sectionIndex in newSection {
                     print("Insert section at index \(sectionIndex)")
-                    self.view?.insertSection(at: sectionIndex)
+                    self?.view?.insertSection(at: sectionIndex)
                 }
                 
                 for path in newPaths {
-                    self.view?.insertItem(at: path)
+                    self?.view?.insertItem(at: path)
                 }
                 
             }, completion: { (finished) in
-                operation.end()
+                completion()
             })
         }
         
@@ -281,17 +279,17 @@ public class DataSource<T:DataType> {
             
             return true
         }
-
-        operation.applyChanges = {
-            self.view?.update(with: {
+        
+        operation.applyChanges = { [weak self] (completion) in
+            self?.view?.update(with: {
                 for sectionIndex in removeSections {
-                    self.view?.removeSection(at: sectionIndex)
+                    self?.view?.removeSection(at: sectionIndex)
                 }
                 for path in removePath {
-                    self.view?.removeItem(at: path)
+                    self?.view?.removeItem(at: path)
                 }
             }, completion: { (finished) in
-                operation.end()
+                completion()
             })
         }
         
@@ -321,11 +319,11 @@ public class DataSource<T:DataType> {
             return !byUser
         }
         
-        operation.applyChanges = {
-            self.view?.update(with: {
-                self.view?.moveItem(from: from, to: to)
+        operation.applyChanges = { [weak self] (completion) in
+            self?.view?.update(with: {
+                self?.view?.moveItem(from: from, to: to)
             }, completion: { (_) in
-                operation.end()
+                completion()
             })
         }
         
