@@ -25,9 +25,7 @@ public class DataSource<T:DataType> {
         }
     }
     
-    public var numberOfSections: Int {
-        return sections.count
-    }
+    public var numberOfSections: Int = 0
     
     public func numberOfItems(in section:Int) -> Int {
         return sections[section].objects.count
@@ -44,7 +42,6 @@ public class DataSource<T:DataType> {
         }
         
         guard let section = objectSection else {
-            print("Create new section for \(object)")
             let newSection = Section<T>(key: object.value)
             sections.append(newSection)
             sections.sort(by: { (lhs, rhs) -> Bool in
@@ -52,8 +49,6 @@ public class DataSource<T:DataType> {
             })
             return newSection
         }
-        
-        print("Section for object \(object) found")
         
         return section
     }
@@ -72,8 +67,16 @@ public class DataSource<T:DataType> {
         self.view = view
     }
     
-    public subscript(path: IndexPath) -> T {
-        return sections[path.section].objects[path.row].value
+    public subscript(path: IndexPath) -> T? {
+
+        if path.section < sections.count {
+            let s = sections[path.section]
+            if path.row < s.objects.count {
+                return s.objects[path.row].value
+            }
+        }
+        print("❌ ups")
+        return nil
     }
     
     func updateSort() {
@@ -120,19 +123,6 @@ public class DataSource<T:DataType> {
                 completion()
             })
         }
-        
-
-        
-//        operation.applyChanges = { [weak self] in
-//            
-//            self?.view?.update(with: {
-//                for pair in pairs {
-//                    self?.view?.moveItem(from: pair.from, to: pair.to)
-//                }
-//            }, completion: { (_) in
-//                operation.end()
-//            })
-//        }
         
         updateQueue.addOperation(operation)
     }
@@ -186,6 +176,15 @@ public class DataSource<T:DataType> {
                     continue
                 }
                 
+//                for (index, o) in section.objects.enumerated() {
+//                    
+//                    if let fi = filteredObjects.index(of: o.value) {
+//                        let path = IndexPath(item: index, section: sectionIndex)
+//                        newPaths.append(path)
+//                        filteredObjects.remove(at: fi)
+//                    }
+//                }
+                
                 for object in filteredObjects {
                     let index = section.objects.index { (obj) -> Bool in
                         return obj.value == object
@@ -212,7 +211,10 @@ public class DataSource<T:DataType> {
                     self?.view?.insertItem(at: path)
                 }
                 
+                self?.numberOfSections = self?.sections.count ?? 0
+                
             }, completion: { (finished) in
+                print("\(self?.updateQueue.operationCount)")
                 completion()
             })
         }
@@ -288,6 +290,7 @@ public class DataSource<T:DataType> {
                 for path in removePath {
                     self?.view?.removeItem(at: path)
                 }
+                self?.numberOfSections = self?.sections.count ?? 0
             }, completion: { (finished) in
                 completion()
             })

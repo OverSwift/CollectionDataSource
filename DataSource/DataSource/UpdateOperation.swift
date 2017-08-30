@@ -25,10 +25,6 @@ class UpdateOperation: Operation {
     var arrayModify:(() -> Bool)?
     var applyChanges: ((_ completionHandler: @escaping () -> ()) -> ())?
     
-//    func setChanges(block: ((_ completionHandler: @escaping () -> ()) -> ())?) {
-//        applyChanges = block
-//    }
-    
     override func cancel() {
         super.cancel()
         updating = false

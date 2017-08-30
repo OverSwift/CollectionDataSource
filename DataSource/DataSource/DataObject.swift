@@ -21,3 +21,17 @@ struct DataObject<T:DataType>: Box {
     typealias ObjectType = T
     var value: T
 }
+
+extension DataObject: CustomStringConvertible {
+    
+    var description: String {
+        return "\(value)"
+    }
+}
+
+extension DataObject: CustomDebugStringConvertible {
+    
+    var debugDescription: String {
+        return description
+    }
+}

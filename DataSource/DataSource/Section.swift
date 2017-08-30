@@ -21,6 +21,7 @@ class Section<T:DataType> {
     var isNew = true
     var isDitry = false
     var sectionKey: T.SectionKeyValue
+    
     var objects:[DataObject<T>] = []
     
     init(key: T.SectionKeyValue) {
@@ -32,7 +33,23 @@ class Section<T:DataType> {
     }
 }
 
-extension Section : Equatable {
+extension Section: CustomStringConvertible {
+    
+    var description: String {
+        var d = ""
+        d += "\(objects)"
+        return d
+    }
+}
+
+extension Section: CustomDebugStringConvertible {
+    
+    var debugDescription: String {
+        return description
+    }
+}
+
+extension Section: Equatable {
     
     static func ==(lhs: Section<T>, rhs: Section<T>) -> Bool {
         return lhs.sectionKey == rhs.sectionKey
