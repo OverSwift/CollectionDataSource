@@ -16,11 +16,25 @@ protocol Box {
     var value:ObjectType { get }
 }
 
-struct DataObject<T:DataType>: Box {
+class DataObject<T:DataType>: Box {
     
     typealias ObjectType = T
     var value: T
+    var isNew = true
+    
+    init(value: T) {
+        self.value = value
+    }
+    
+    static func ==(lhs: DataObject<T>, rhs: DataObject<T>) -> Bool {
+        return lhs.value == rhs.value
+    }
 }
+
+extension DataObject: Equatable {
+    
+}
+
 
 extension DataObject: CustomStringConvertible {
     

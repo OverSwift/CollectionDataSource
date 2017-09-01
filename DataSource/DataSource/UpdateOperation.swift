@@ -64,7 +64,6 @@ class UpdateOperation: Operation {
         if arrayModify?() ?? false {
             OperationQueue.main.addOperation { [weak self] in
                 self?.applyChanges? { [weak self] in
-                    print("END")
                     self?.end()
                 }
             }

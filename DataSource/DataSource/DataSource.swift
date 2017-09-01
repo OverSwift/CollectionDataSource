@@ -72,10 +72,11 @@ public class DataSource<T:DataType> {
         if path.section < sections.count {
             let s = sections[path.section]
             if path.row < s.objects.count {
+                print("⚠️ Found ⚠️")
                 return s.objects[path.row].value
             }
         }
-        print("❌ ups")
+        print("❌ ups ❌")
         return nil
     }
     
@@ -83,7 +84,6 @@ public class DataSource<T:DataType> {
 
         let operation = UpdateOperation()
         var pairs = [MovePair<T>]()
-
         operation.arrayModify = {
             
             let old = Array(self.sections)
@@ -145,20 +145,18 @@ public class DataSource<T:DataType> {
         var newPaths = [IndexPath]()
         
         operation.arrayModify = {
-            
-            var filteredObjects = [T]()
+        
+            var filteredSet = Set<T>()
             
             for object in objects {
-                if !self.contains(object: object) {
-                    filteredObjects.append(object)
-                }
+                filteredSet.insert(object)
             }
             
-            if filteredObjects.isEmpty {
+            if filteredSet.isEmpty {
                 return false
             }
             
-            for object in filteredObjects {
+            for object in filteredSet {
                 let wraper = DataObject(value: object)
                 let section = self.section(for: object)
                 section.add(object: wraper)
@@ -176,24 +174,16 @@ public class DataSource<T:DataType> {
                     continue
                 }
                 
-//                for (index, o) in section.objects.enumerated() {
-//                    
-//                    if let fi = filteredObjects.index(of: o.value) {
-//                        let path = IndexPath(item: index, section: sectionIndex)
-//                        newPaths.append(path)
-//                        filteredObjects.remove(at: fi)
-//                    }
-//                }
-                
-                for object in filteredObjects {
-                    let index = section.objects.index { (obj) -> Bool in
-                        return obj.value == object
-                    }
-                    guard let a = index else {
+                for (objIndex, obj) in section.objects.enumerated() {
+                    
+                    if !obj.isNew { // just skip old objects
                         continue
                     }
-                    let path = IndexPath(item: a, section: sectionIndex)
-                    newPaths.append(path)
+                    if filteredSet.contains(obj.value) {
+                        let path = IndexPath(item: objIndex, section: sectionIndex)
+                        newPaths.append(path)
+                    }
+                    obj.isNew = false
                 }
             }
             return true
@@ -212,9 +202,9 @@ public class DataSource<T:DataType> {
                 }
                 
                 self?.numberOfSections = self?.sections.count ?? 0
-                
             }, completion: { (finished) in
-                print("\(self?.updateQueue.operationCount)")
+                print("\(String(describing: self?.updateQueue.operationCount))")
+                
                 completion()
             })
         }
@@ -300,17 +290,15 @@ public class DataSource<T:DataType> {
     }
     
     private func contains(object: T) -> Bool {
-        var old:T?
+        
         for section in sections {
-            let a = section.objects.first { (obj) -> Bool in
-                return obj.value == object
-            }
-            if let aa = a {
-                old = aa.value
-                break
+            for obj in section.objects {
+                if object == obj.value {
+                    return true
+                }
             }
         }
-        return old != nil
+        return false
     }
     
     public func move(from : IndexPath, to: IndexPath, byUser: Bool) {

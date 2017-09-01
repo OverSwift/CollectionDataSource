@@ -23,6 +23,10 @@ class Section<T:DataType> {
     var sectionKey: T.SectionKeyValue
     
     var objects:[DataObject<T>] = []
+    {
+        didSet {
+        }
+    }
     
     init(key: T.SectionKeyValue) {
         self.sectionKey = key
