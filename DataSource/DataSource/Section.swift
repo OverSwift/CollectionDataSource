@@ -13,7 +13,7 @@ public typealias SectionKey = (Comparable & Hashable)
 public protocol SectionSupport {
     
     associatedtype SectionKeyValue: SectionKey
-    var value:SectionKeyValue { get }
+    var sectionKey:SectionKeyValue { get }
 }
 
 class Section<T:DataType> {

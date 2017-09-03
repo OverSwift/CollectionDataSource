@@ -36,13 +36,13 @@ public class DataSource<T:DataType> {
         var objectSection: Section<T>? = nil
         
         for section in self.sections {
-            if object.value == section.sectionKey {
+            if object.sectionKey == section.sectionKey {
                 objectSection = section
             }
         }
         
         guard let section = objectSection else {
-            let newSection = Section<T>(key: object.value)
+            let newSection = Section<T>(key: object.sectionKey)
             sections.append(newSection)
             sections.sort(by: { (lhs, rhs) -> Bool in
                 return lhs.sectionKey > rhs.sectionKey
