@@ -63,7 +63,7 @@ public class DataSource<T:DataType> {
         }
     }
     
-    public init(withView view:AnimatableCollection) {
+    public init(with view:AnimatableCollection) {
         self.view = view
     }
     
