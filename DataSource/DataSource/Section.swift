@@ -16,15 +16,18 @@ public protocol SectionSupport {
     var sectionKey:SectionKeyValue { get }
 }
 
+    private let syncQueue = DispatchQueue(label: "SectionSynch")
+
 class Section<T:DataType> {
     
     var isNew = true
     var isDitry = false
     var sectionKey: T.SectionKeyValue
-    
+
     var objects:[DataObject<T>] = []
     {
         didSet {
+            
         }
     }
     
@@ -33,7 +36,17 @@ class Section<T:DataType> {
     }
     
     func add(object: DataObject<T>) {
-        objects.append(object)
+        syncQueue.sync {
+            self.objects.append(object)
+        }
+    }
+    
+    func copy() -> Section<T> {
+        let copy = Section<T>(key: sectionKey)
+        copy.objects = self.objects
+        copy.isNew = self.isNew
+        copy.isDitry = self.isDitry
+        return copy
     }
 }
 

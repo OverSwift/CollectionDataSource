@@ -17,11 +17,21 @@ public class DataSource<T:DataType> {
         return queue
     }()
     
-    private(set) var sections:[Section<T>] = [] {
-        didSet {
-            if Thread.current == Thread.main {
-                fatalError("sections modified from main thread")
+    private var _sections: [Section<T>] = []
+    
+    let syncQueue = DispatchQueue(label: "asad")
+    
+    private(set) var sections:[Section<T>] {
+        set {
+            syncQueue.sync {
+                _sections = newValue
             }
+        } get {
+            var s:[Section<T>] = []
+            syncQueue.sync {
+                s = _sections
+            }
+            return s
         }
     }
     
@@ -45,7 +55,7 @@ public class DataSource<T:DataType> {
             let newSection = Section<T>(key: object.sectionKey)
             sections.append(newSection)
             sections.sort(by: { (lhs, rhs) -> Bool in
-                return lhs.sectionKey > rhs.sectionKey
+                return lhs.sectionKey < rhs.sectionKey
             })
             return newSection
         }
@@ -71,10 +81,10 @@ public class DataSource<T:DataType> {
 
         if path.section < sections.count {
             let s = sections[path.section]
-            if path.row < s.objects.count {
-                print("⚠️ Found ⚠️")
+//            if path.row < s.objects.count {
+//                print("⚠️ Found ⚠️")
                 return s.objects[path.row].value
-            }
+//            }
         }
         print("❌ ups ❌")
         return nil
@@ -146,6 +156,8 @@ public class DataSource<T:DataType> {
         
         operation.arrayModify = {
         
+            print("MODIFY ARRAY")
+            
             var filteredSet = Set<T>()
             
             for object in objects {
@@ -186,6 +198,8 @@ public class DataSource<T:DataType> {
                     obj.isNew = false
                 }
             }
+            
+            print("MODIFY ARRAY END")
             return true
         }
         

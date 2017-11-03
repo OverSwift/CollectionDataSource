@@ -61,6 +61,8 @@ class UpdateOperation: Operation {
             return
         }
         
+        print("START OPERATION")
+        
         if arrayModify?() ?? false {
             OperationQueue.main.addOperation { [weak self] in
                 self?.applyChanges? { [weak self] in
@@ -74,6 +76,7 @@ class UpdateOperation: Operation {
     
     private func end() {
         updating = false
+        print("END OPERATION")
     }
     
     override var isAsynchronous: Bool {
